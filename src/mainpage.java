@@ -32,6 +32,7 @@ public class mainpage extends javax.swing.JFrame {
        // fndisplay.setText(user);
     }
     connt conn=new connt();
+    int id=0;
     
     
     
@@ -104,9 +105,10 @@ public void addpp(){
         jLabel5 = new javax.swing.JLabel();
         prod_name = new javax.swing.JTextField();
         prod_quan = new javax.swing.JSpinner();
-        jButton5 = new javax.swing.JButton();
+        addbtn = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         prod_price = new javax.swing.JFormattedTextField();
+        editbtn = new javax.swing.JButton();
         fndisplay = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -147,11 +149,11 @@ public void addpp(){
 
         prod_quan.setModel(new javax.swing.SpinnerNumberModel(1, 1, 50, 1));
 
-        jButton5.setFont(new java.awt.Font("Times New Roman", 1, 11)); // NOI18N
-        jButton5.setText("ADD");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        addbtn.setFont(new java.awt.Font("Times New Roman", 1, 11)); // NOI18N
+        addbtn.setText("ADD");
+        addbtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                addbtnActionPerformed(evt);
             }
         });
 
@@ -165,6 +167,13 @@ public void addpp(){
 
         prod_price.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
         prod_price.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+
+        editbtn.setText("EDIT");
+        editbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editbtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -185,12 +194,12 @@ public void addpp(){
                         .addGap(56, 56, 56)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(prod_quan)
-                            .addComponent(prod_price))))
+                            .addComponent(prod_price)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(addbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(editbtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addGap(34, 34, 34))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton5)
-                .addGap(104, 104, 104))
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jButton6)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -212,9 +221,11 @@ public void addpp(){
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(prod_price, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(19, 19, 19)
-                .addComponent(jButton5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addbtn)
+                    .addComponent(editbtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
                 .addComponent(jButton6))
         );
 
@@ -285,7 +296,12 @@ public void addpp(){
         });
 
         jButton3.setFont(new java.awt.Font("Times New Roman", 1, 11)); // NOI18N
-        jButton3.setText("UPDATE");
+        jButton3.setText("EDIT");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setFont(new java.awt.Font("Times New Roman", 1, 11)); // NOI18N
         jButton4.setText("DELETE");
@@ -297,6 +313,11 @@ public void addpp(){
 
         jButton7.setFont(new java.awt.Font("Times New Roman", 1, 11)); // NOI18N
         jButton7.setText("EXIT");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -412,6 +433,7 @@ public void addpp(){
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
 addproduct.setVisible(true);
 addproduct.setLocationRelativeTo(null);
+editbtn.setEnabled(false);
 this.setVisible(false);
 
         // TODO add your handling code here:
@@ -427,14 +449,72 @@ this.setVisible(false);
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void addbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addbtnActionPerformed
 addpp();
 clearprod();
 prod_name.requestFocus();
 
 
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_addbtnActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+       int gtrow=display.getSelectedRow();
+       
+        
+        if(gtrow==-1){
+            JOptionPane.showMessageDialog(rootPane, "Please Select ROw to Edit");
+        }
+        else{
+            addproduct.setVisible(true);
+            this.setVisible(false);
+            addbtn.setEnabled(false);
+            prod_quan.setEnabled(false);
+            
+            id=Integer.parseInt(display.getValueAt(gtrow,0).toString());
+            String pname=display.getValueAt(gtrow,1).toString();
+            int qty=Integer.parseInt(display.getValueAt(gtrow, 2).toString());
+            String price = display.getValueAt(gtrow,3).toString();
+            
+            prod_name.setText(pname);
+            prod_quan.setValue(qty);
+            prod_price.setText(price);
+            
+            
+            
+        }
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void editbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editbtnActionPerformed
+       product prod = new product();
+        
+        String newprod_name=prod_name.getText();
+         float newprice =Float.parseFloat( prod_price.getValue().toString());
+        
+         int c=prod.editproduct(id, newprod_name, newprice);
+         
+         if(c==1){
+            JOptionPane.showMessageDialog(addproduct,"Product Edit Successfully!");
+            addproduct.setVisible(false);
+            this.refresh();
+            this.setVisible(true);
+        }else{
+            JOptionPane.showMessageDialog(addproduct, "There Was a Problem Editing Prodcut","ERROR",JOptionPane.ERROR_MESSAGE);
+            
+        }
+        
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_editbtnActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        System.exit(0);
+        
+// TODO add your handling code here:
+    }//GEN-LAST:event_jButton7ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -475,14 +555,15 @@ prod_name.requestFocus();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addbtn;
     private javax.swing.JFrame addproduct;
     private javax.swing.JTable display;
+    private javax.swing.JButton editbtn;
     private javax.swing.JLabel fndisplay;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;

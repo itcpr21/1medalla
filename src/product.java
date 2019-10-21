@@ -20,6 +20,32 @@ public class product {
     connt conn=new connt();
     
     
+    public int editproduct(int id,String prodname,float price){
+      int c=0;
+      
+       String sql="Update product set prod_name = ? ,prod_price = ? where Prod_ID = ?";
+         
+         try{
+             
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection con = (Connection) DriverManager.getConnection(conn.url,conn.username,conn.password);
+            PreparedStatement pstmt=(PreparedStatement)con.prepareStatement(sql);
+            
+            pstmt.setString(1, prodname);
+            pstmt.setFloat(2, price);
+            pstmt.setInt(3, id);
+            
+          c = pstmt.executeUpdate();
+            
+        } catch (ClassNotFoundException ex) {
+             Logger.getLogger(product.class.getName()).log(Level.SEVERE, null, ex);
+         } catch (SQLException ex) {
+             Logger.getLogger(product.class.getName()).log(Level.SEVERE, null, ex);
+         }
+         return c;
+        
+    }
+    
     public int addproduct(String prodname,int prodquant,float price){
         int x=0;
         
