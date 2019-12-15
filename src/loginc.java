@@ -20,28 +20,34 @@ import java.util.logging.Logger;
 public class loginc {
     
     connt con = new connt();
+     protected String uname;
+    protected int usertype;
     
-   public int log_in(String uname,String pass){
+   public int log_in(String username,String pass){
        int x=0;
        
        try{
            Class.forName("com.mysql.jdbc.Driver");
            Connection conn=(Connection) DriverManager.getConnection(con.url,con.username,con.password);
-            String sql="select * from register where uname=? and pass=md5(?);";
+            String sql="select * from register where uname = ? and pass = md5(?);";
            PreparedStatement pstmt=(PreparedStatement) conn.prepareStatement(sql);
           
-           pstmt.setString(1,uname);
+           pstmt.setString(1,username);
            pstmt.setString(2,pass);
            
       ResultSet rs=pstmt.executeQuery();
       
-      if(rs.next()){
-          x=1;
-          
-      }else{
-          x=0;
-          
-      }
+       if(rs.next()){
+                x=1;
+                //ses.id = rs.getString("ID");
+                uname = rs.getString("uname");
+                usertype = rs.getInt("type");
+            }
+            else{
+                
+                x=0;
+                
+            }
            
            
            

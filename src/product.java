@@ -2,9 +2,12 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -24,7 +27,7 @@ public class product {
          
          int y=0;
        
-          String sql="Update product set prod_quant = prod_quant + ?  where Prod_ID = ?";
+          String sql="Update product set prod_quant = prod_quant + ?  where prod_id = ?";
          
          try{
              
@@ -81,7 +84,7 @@ public class product {
     public int addproduct(String prodname,int prodquant,float price){
         int x=0;
         
-        String sql="insert into product values(?,?,?,null);";
+        String sql="insert into product values(null,?,?,?,0);";
         
         try{
             Class.forName("com.mysql.jdbc.Driver");
@@ -131,6 +134,36 @@ public class product {
         
       return c;  
     }
+    final void searchProd(String prodname, JTable table){
+         
+         String sql="Select * from product where prod_id like ? or prod_name like ?;";
+         try{
+    Class.forName("com.mysql.jdbc.Driver");
+    Connection con = DriverManager.getConnection(conn.url, conn.username,conn.password);
+    PreparedStatement pstmt = con.prepareStatement(sql);
+    
+    pstmt.setString(1,"%"+ prodname +"%");
+    pstmt.setString(2,"%"+ prodname +"%");
+    
+                                                             
+    ResultSet rs=pstmt.executeQuery();
+    DefaultTableModel model = (DefaultTableModel) table.getModel();
+    model.setRowCount(0);
+     while(rs.next()){
+         
+        model.addRow(new Object[]{rs.getString("Prod_ID"),rs.getString("Prod_name"),rs.getString("prod_quant"),rs.getString("prod_price")});
+    }
+    
+    
+}       catch (ClassNotFoundException ex) {   
+            Logger.getLogger(product.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(product.class.getName()).log(Level.SEVERE, null, ex);
+        }   
+    
+    
+     }
+
     
     
     

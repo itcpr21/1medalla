@@ -1,15 +1,24 @@
 
-import java.sql.Connection;
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.PreparedStatement;
+import com.mysql.jdbc.Statement;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import java.sql.ResultSet;
 import javax.swing.table.DefaultTableModel;
-
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -28,82 +37,36 @@ public class mainpage extends javax.swing.JFrame {
     public mainpage() {
         
         initComponents();
-        this.setLocationRelativeTo(null);
-        
-        refresh();
-       // fndisplay.setText(user);
+        this.setLocationRelativeTo(null);      
+        prd.searchProd("", display);
+       refreshQuant.start();
+        checkLowQuantity.start(); 
     }
-    connt conn=new connt();
+    
+     public mainpage(String uname){
+        initComponents();
+         prd.searchProd("", display);
+         refreshQuant.start();
+        checkLowQuantity.start(); 
+        
+        
+        
+    }
+    
+    
+    connt conn = new connt();
     int id=0;
+    product prd = new product();
     
     
     
-    
-    public void search(String pdname){
-        
-        String sql="Select * from product where prod_id like ? or prod_name like ?;";
-     DefaultTableModel mod = (DefaultTableModel) display.getModel();
-    mod.setRowCount(0);
-    
-     try{
-    Class.forName("com.mysql.jdbc.Driver");
-    
-    Connection con = DriverManager.getConnection(conn.url, conn.username, conn.password);
-    PreparedStatement pstmt=con.prepareStatement(sql);
-    
-    pstmt.setString(1,"%"+pdname+"%");
-    pstmt.setString(2,"%"+pdname+"%");
-    
-    
-    ResultSet rs=pstmt.executeQuery();
-      while(rs.next()){
-            mod.addRow(new Object[]{rs.getString("prod_id"),rs.getString("prod_name"),rs.getString("prod_quant"),rs.getString("prod_price")});
-        }
-        
-        
-        
-    }   catch (ClassNotFoundException ex) {
-            Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    
-    
-    
-       
-        
+    String getProdname(){
+        return searchtf.getText();
     }
     
     
-public void refresh(){
-    DefaultTableModel mod=(DefaultTableModel) display.getModel();
-    mod.setRowCount(0);
     
-    try{
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection con=DriverManager.getConnection(conn.url,conn.username,conn.password);
-        
-        Statement stmt=con.createStatement();
-        
-        ResultSet rs=stmt.executeQuery("Select * from product");
-        
-        while(rs.next()){
-            mod.addRow(new Object[]{rs.getString("prod_id"),rs.getString("prod_name"),rs.getString("prod_quant"),rs.getString("prod_price")});
-        }
-        
-        
-        
-    }   catch (ClassNotFoundException ex) {
-            Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    
-    
-    
-    
-}
-    
+  
 public void clearprod(){
     prod_name.setText("");
     prod_quan.setValue(0);
@@ -113,17 +76,79 @@ public void clearprod(){
 }
 
 public void addpp(){
-    product prod=new product();
+   
     
     
     String prodname=prod_name.getText();
     int quant=(int) prod_quan.getValue();
     float price=Float.parseFloat(prod_price.getValue().toString());
     
-    prod.addproduct(prodname,quant, price);
+    prd.addproduct(prodname,quant, price);
     JOptionPane.showMessageDialog(rootPane,"Done!");
     
 }
+
+final void refreshQuantity(String prodname) {
+    
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            com.mysql.jdbc.Connection con = (com.mysql.jdbc.Connection) DriverManager.getConnection(conn.url, conn.username, conn.password);
+
+            String sql = "SELECT prod_quant FROM product WHERE prod_id LIKE ? OR prod_name LIKE ? ";
+            com.mysql.jdbc.PreparedStatement pstmt = (com.mysql.jdbc.PreparedStatement) con.prepareStatement(sql);
+
+            pstmt.setString(1, "%" + prodname + "%");
+            pstmt.setString(2, "%" + prodname + "%");
+            
+            ResultSet rs = pstmt.executeQuery();
+            
+            DefaultTableModel mod = (DefaultTableModel) display.getModel();
+            int row = 0;
+            while (rs.next()) {
+                int quant = rs.getInt("prod_quant");
+                //model.addRow(new Object[]{rs.getString("id"), rs.getString("product_name"), rs.getString("quantity"), rs.getString("price")});
+                mod.setValueAt(quant, row, 2);
+                row++;
+            }
+
+        } catch (ClassNotFoundException ex) { 
+            Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+}
+
+Thread refreshQuant = new Thread(new Runnable(){
+            
+            @Override
+            public void run(){
+                try{
+                    while(true){
+                        refreshQuantity(getProdname());
+                        Thread.sleep(1000);
+                    }                  
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            });
+
+Thread checkLowQuantity = new Thread(new Runnable(){
+       notifications ntf = new notifications();
+       @Override
+       public void run(){
+           try{
+               while(true){
+                   ntf.checkLowProducts();
+                   Thread.sleep(1000);
+               }
+           } catch (InterruptedException ex) {
+               Logger.getLogger(mainpage.class.getName()).log(Level.SEVERE, null, ex);
+           } 
+       }
+    });
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -156,7 +181,7 @@ public void addpp(){
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         display = new javax.swing.JTable();
-        jButton2 = new javax.swing.JButton();
+        add = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
@@ -167,7 +192,6 @@ public void addpp(){
         jButton1.setText("jButton1");
 
         addproduct.setMinimumSize(new java.awt.Dimension(400, 400));
-        addproduct.setPreferredSize(new java.awt.Dimension(400, 400));
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -354,11 +378,11 @@ public void addpp(){
         });
         jScrollPane1.setViewportView(display);
 
-        jButton2.setFont(new java.awt.Font("Times New Roman", 1, 11)); // NOI18N
-        jButton2.setText("ADD");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        add.setFont(new java.awt.Font("Times New Roman", 1, 11)); // NOI18N
+        add.setText("ADD");
+        add.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                addActionPerformed(evt);
             }
         });
 
@@ -433,7 +457,7 @@ public void addpp(){
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(add, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(addq, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -451,7 +475,7 @@ public void addpp(){
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jButton2)
+                        .addComponent(add)
                         .addGap(18, 18, 18)
                         .addComponent(jButton4)
                         .addGap(18, 18, 18)
@@ -503,7 +527,7 @@ public void addpp(){
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        product addprod=new product();
+       
         
         int x=display.getSelectedRow();
 
@@ -523,11 +547,11 @@ public void addpp(){
                 
                 if(yy==JOptionPane.YES_OPTION){
                     
-                    int j=addprod.deleltep(id);
+                    int j=prd.deleltep(id);
                     
                     if(j==1){
                         JOptionPane.showMessageDialog(rootPane, "Product "+prodname+" Deleted","Product Deleted",JOptionPane.WARNING_MESSAGE);
-                        refresh();
+                        prd.searchProd("", display);
     
     
     
@@ -540,9 +564,10 @@ public void addpp(){
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
 addproduct.setLocationRelativeTo(null);
-addproduct.setVisible(true);        
+addproduct.setVisible(true); 
+
     prod_name.setText("");
     prod_quan.setValue(0);
     prod_price.setText("");
@@ -550,6 +575,7 @@ addproduct.setVisible(true);
     prod_name.setEnabled(true);
     prod_price.setEnabled(true);
 
+   addbtn.setVisible(true);
     editbtn.setVisible(false);
     addquanttf.setVisible(false);
     currentquan.setVisible(false);     
@@ -560,7 +586,7 @@ addproduct.setVisible(true);
 
 
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_addActionPerformed
 
     private void prod_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prod_nameMouseClicked
        
@@ -581,7 +607,7 @@ this.setVisible(true);
 addpp();
 clearprod();
 addproduct.setVisible(false);
-refresh();
+prd.searchProd("", display);
 prod_name.requestFocus();
 
 
@@ -625,17 +651,17 @@ prod_name.requestFocus();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void editbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editbtnActionPerformed
-       product prod = new product();
+      
         
         String nprod_name = prod_name.getText();
         //float nprice =Float.parseFloat(prod_price.getValue().toString());
         Object price = prod_price.getValue();
-         int x = prod.editproduct2(id, nprod_name, price);
+         int x = prd.editproduct2(id, nprod_name, price);
          
          if(x == 1){
             JOptionPane.showMessageDialog(addproduct,"Product Edit Successfully!");
             addproduct.setVisible(false);
-             refresh();
+             prd.searchProd("", display);
             this.setVisible(true);
         }else{
             JOptionPane.showMessageDialog(addproduct, "There Was a Problem Editing Prodcut","ERROR",JOptionPane.ERROR_MESSAGE);
@@ -659,7 +685,7 @@ prod_name.requestFocus();
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
     String pdname =searchtf.getText();
     
-    this.search(pdname);
+   prd.searchProd(pdname, display);
         
 // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
@@ -667,13 +693,13 @@ prod_name.requestFocus();
     private void searchtfKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchtfKeyReleased
          String pdname =searchtf.getText();
     
-    this.search(pdname);
+    prd.searchProd(pdname, display);
         
 // TODO add your handling code here:
     }//GEN-LAST:event_searchtfKeyReleased
 
     private void addquanttfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addquanttfActionPerformed
-        product prod = new product();    
+         
         
         String newprdname = prod_name.getText();
             int qty =Integer.parseInt(prod_quan.getValue().toString());
@@ -681,11 +707,11 @@ prod_name.requestFocus();
             int x = JOptionPane.showConfirmDialog(addproduct,"Add \n"+qty+"\nto "+"''"+newprdname+"''"+" ?","Add Quantity",JOptionPane.YES_NO_OPTION);
             
             if(x==JOptionPane.YES_OPTION){
-                int c = prod.addQuantityProd(id, qty);
+                int c = prd.addQuantityProd(id, qty);
                 if(c==1){
                     JOptionPane.showMessageDialog(addproduct,"Product Quantity Updated!");
                     addproduct.setVisible(false);
-                    refresh();
+                    prd.searchProd("", display);
                     
                     //addp.searchBox("", jtb);
                 }
@@ -773,6 +799,7 @@ prod_name.requestFocus();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton add;
     private javax.swing.JButton addbtn;
     private javax.swing.JFrame addproduct;
     private javax.swing.JButton addq;
@@ -783,7 +810,6 @@ prod_name.requestFocus();
     private javax.swing.JLabel fndisplay;
     private javax.swing.JLabel header;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;

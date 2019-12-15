@@ -44,7 +44,33 @@ mainpage mn=new mainpage();
         String lpass=new String (pword.getPassword());
         
         int x=lg.log_in(user, lpass);
+        
         if(x==1){
+            //System.out.println("Login Success");
+            if(lg.usertype == 0){
+                JOptionPane.showMessageDialog(rootPane, "Username not confirmed by administrator", "LOGIN WARNING", JOptionPane.WARNING_MESSAGE);
+                //logpass.setText("");
+                //logpass.requestFocus();
+            }else if(lg.usertype == 1){
+                JFrame posact = new Pos();
+                posact.setVisible(true);
+                this.setVisible(false);
+                posact.setLocationRelativeTo(null);
+                //POS
+            }else if(lg.usertype == 2){
+                this.setVisible(false);
+                JFrame mnpage = new mainpage();
+                mnpage.setVisible(true);
+                mnpage.setLocationRelativeTo(null);
+                
+            }
+            
+        }else{
+            JOptionPane.showMessageDialog(rootPane, "Invalid Username or Password", "LOGIN ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        
+        /*if(x==1){
             
             mn.setVisible(true);
             this.setVisible(false);
@@ -56,7 +82,7 @@ mainpage mn=new mainpage();
             
         }
         
-        
+        */
     }
     
     public void chekpass(){
